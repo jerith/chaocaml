@@ -1,0 +1,8 @@
+PKG lwt lwt.unix lwt.syntax websocket conduit yojson cmdliner
+EXT lwt
+
+S lib
+S example
+
+B _build/lib
+B _build/example

@@ -1,0 +1,21 @@
+Name: discord
+Version: 0.0.1
+Synopsis: A client library for Discord
+Authors: Jeremy Thurgood <firxen@gmail.com>
+License: MIT
+
+OASISFormat: 0.4
+BuildTools: ocamlbuild
+Plugins: META (0.4), DevFiles (0.4)
+
+Library "discord"
+  Path: lib
+  Modules: Discord
+  InternalModules: Endpoints, Entities, Events, Json_utils
+  BuildDepends: lwt, lwt.syntax, lwt.unix, cohttp, cohttp.lwt, websocket,
+                websocket.lwt, yojson
+
+Executable "foo"
+  Path: example
+  MainIs: foo.ml
+  BuildDepends: discord, cmdliner
