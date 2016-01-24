@@ -24,18 +24,18 @@ let login_body email password =
   let json = `Assoc ["email", `String email; "password", `String password] in
   Cohttp_lwt_body.of_string (Yojson.Basic.to_string json)
 
-let login email password =
+let get_token api_base email password =
   let body = login_body email password in
   let headers = Header.of_list ["Content-type", "Application/json"] in
-  Client.post ~body ~headers Endpoints.login >>=
+  Client.post ~body ~headers (Endpoints.login api_base) >>=
   handle_json_response >|= function
   | `Assoc [("token", `String token)] -> token
   | resp_json -> fail_badresp resp_json
 
 
-let get_gateway token =
+let get_gateway api_base token =
   let headers = Header.of_list ["Authorization", token] in
-  Client.get ~headers Endpoints.gateway >>=
+  Client.get ~headers (Endpoints.gateway api_base) >>=
   handle_json_response >|= function
   | `Assoc [("url", `String gateway)] -> gateway
   | resp_json -> fail_badresp resp_json
@@ -247,10 +247,13 @@ let client conn =
   pushf () <?> react_forever ()
 
 
-
-let connect email password =
-  login email password >>= fun token ->
+let login ?(api_base=Endpoints.api_base) email password =
+  get_token api_base email password >>= fun token ->
+  get_gateway api_base token >>= fun gateway_uri ->
   dlog ("login token: " ^ token) >>
-  get_gateway token >>= fun gateway_uri ->
   dlog ("gateway url: " ^ gateway_uri) >>
+  Lwt.return (token, gateway_uri)
+
+
+let connect (token, gateway_uri) =
   client (Conn.create token gateway_uri)

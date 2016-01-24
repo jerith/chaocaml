@@ -14,8 +14,32 @@ Library "discord"
   InternalModules: Endpoints, Entities, Events, Json_utils
   BuildDepends: lwt, lwt.syntax, lwt.unix, cohttp, cohttp.lwt, websocket,
                 websocket.lwt, yojson
+  XMETARequires: lwt, lwt.unix, cohttp, cohttp.lwt, websocket, websocket.lwt,
+                 yojson
 
 Executable "foo"
   Path: example
   MainIs: foo.ml
   BuildDepends: discord, cmdliner
+
+Executable "test_discord"
+  Path: test
+  MainIs: test_discord.ml
+  Build$: flag(tests)
+  CompiledObject: best
+  Install: false
+  BuildDepends: discord, oUnit
+
+Executable "fake_discord"
+  Path: test
+  MainIs: fake_discord.ml
+  Build$: flag(tests)
+  CompiledObject: best
+  Install: false
+  BuildDepends: discord
+
+Test "test_discord"
+  Run$: flag(tests)
+  TestTools: test_discord
+  Command: $test_discord -runner sequential
+  WorkingDirectory: test
